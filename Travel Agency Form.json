@@ -1,0 +1,524 @@
+{
+  "name": "Travel Agency Form Task 1",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Travel Agency Inquiry Form",
+        "formDescription": "Plan your perfect trip with us! 🌍✈️\n\nFill out this form with your travel preferences, destination, budget, and travel dates. Our travel experts will review your requirements and contact you with personalized travel packages and recommendations.\n\nResponse time: Within 24 hours.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone Number",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Destination",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Departure City",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Travel Start Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Trip Duration",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "3 Days 2 Nights"
+                  },
+                  {
+                    "option": "4 Days 3 Nights"
+                  },
+                  {
+                    "option": "5 Days 4 Nights"
+                  },
+                  {
+                    "option": "7 Days 6 Nights"
+                  },
+                  {
+                    "option": "10 Days 9 Nights"
+                  },
+                  {
+                    "option": "14 Days 13 Nights"
+                  },
+                  {
+                    "option": "15+ Days"
+                  },
+                  {
+                    "option": "Not Sure Yet"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Number of Travelers",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Trip Type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Family Vacation"
+                  },
+                  {
+                    "option": "Honeymoon"
+                  },
+                  {
+                    "option": "Adventure"
+                  },
+                  {
+                    "option": "Business"
+                  },
+                  {
+                    "option": "Solo Travel"
+                  },
+                  {
+                    "option": "Group Tour"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Hotel Preference",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "3 Star"
+                  },
+                  {
+                    "option": "4 Star"
+                  },
+                  {
+                    "option": "5 Star"
+                  },
+                  {
+                    "option": "Luxury Resort"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Budget Range",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Under ₹50,000"
+                  },
+                  {
+                    "option": "₹50,000 - ₹1,00,000"
+                  },
+                  {
+                    "option": "₹1,00,000 - ₹2,00,000"
+                  },
+                  {
+                    "option": "Above ₹2,00,000"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Flight Booking Required?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Visa Assistance Required?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Special Requests",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "🎉 Thank you for your travel inquiry! ✈️  Your request has been successfully submitted. A copy of your submitted response has also been sent to your email for your reference.  Our travel consultant will review your requirements and contact you within 24 hours with personalized travel recommendations.  Please keep an eye on your email inbox (and spam folder) for our response and further travel details.  We look forward to helping you plan your journey! 🌍"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0ea67600-7f7a-42de-8e52-b03d2e0f133e",
+      "name": "On form submission",
+      "webhookId": "015d1a39-fdcb-46df-8beb-5146e4a21cda"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n\n  // ==========================\n  // Date Validation\n  // ==========================\n  const startDate = new Date(item.json[\"Travel Start Date\"]);\n  const today = new Date();\n\n  today.setHours(0, 0, 0, 0);\n  startDate.setHours(0, 0, 0, 0);\n\n  if (startDate < today) {\n    throw new Error(\n      \"Invalid Travel Start Date. Please select today's date or a future date.\"\n    );\n  }\n\n  // ==========================\n  // Phone Validation\n  // ==========================\n  const phone = String(item.json[\"Phone Number\"]).trim();\n\n  if (!/^\\d{10}$/.test(phone)) {\n    throw new Error(\n      \"Invalid Phone Number. Please enter a valid 10-digit phone number.\"\n    );\n  }\n\n  // ==========================\n  // Generate Inquiry ID\n  // ==========================\n  item.json[\"Inquiry ID\"] =\n    \"TRV-\" +\n    Date.now() +\n    \"-\" +\n    Math.floor(Math.random() * 1000);\n\n  // ==========================\n  // Calculate Return Date\n  // ==========================\n  const durationMap = {\n    \"3 Days 2 Nights\": 3,\n    \"4 Days 3 Nights\": 4,\n    \"5 Days 4 Nights\": 5,\n    \"7 Days 6 Nights\": 7,\n    \"10 Days 9 Nights\": 10,\n    \"14 Days 13 Nights\": 14,\n    \"15+ Days\": 15\n  };\n\n  const duration = item.json[\"Trip Duration\"];\n\n  if (durationMap[duration]) {\n    const returnDate = new Date(startDate);\n\n    returnDate.setDate(\n      returnDate.getDate() + durationMap[duration]\n    );\n\n    item.json[\"Estimated Return Date\"] =\n      returnDate.toISOString().split(\"T\")[0];\n  } else {\n    item.json[\"Estimated Return Date\"] = \"Not Specified\";\n  }\n\n  // ==========================\n  // Lead Status\n  // ==========================\n  item.json[\"Lead Status\"] = \"New Lead\";\n\n  // ==========================\n  // Submission Time\n  // ==========================\n  item.json[\"Processed At\"] = new Date().toISOString();\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "01f18bcd-5ba7-417b-86d5-c712ce94bb8b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1PtPQen038XMszdPiRJO1zyPl-UEKJoQ-UqPSDs6gSD4",
+          "mode": "list",
+          "cachedResultName": "Travel Agency Form",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1PtPQen038XMszdPiRJO1zyPl-UEKJoQ-UqPSDs6gSD4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1PtPQen038XMszdPiRJO1zyPl-UEKJoQ-UqPSDs6gSD4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Inquiry ID": "={{ $json['Inquiry ID'] }}",
+            "Full Name": "={{ $json['Full Name'] }}",
+            "Email": "={{ $json.Email }}",
+            "Phone Number": "={{ $json['Phone Number'] }}",
+            "Destination": "={{ $json.Destination }}",
+            "Departure City": "={{ $json['Departure City'] }}",
+            "Travel Start Date": "={{ $json['Travel Start Date'] }}",
+            "Trip Duration": "={{ $json['Trip Duration'] }}",
+            "Number of Travelers": "={{ $json['Number of Travelers'] }}",
+            "Trip Type": "={{ $json['Trip Type'] }}",
+            "Hotel Preference": "={{ $json['Hotel Preference'] }}",
+            "Budget Range": "={{ $json['Budget Range'] }}",
+            "Flight Booking Required?": "={{ $json['Flight Booking Required?'] }}",
+            "Visa Assistance Required?": "={{ $json['Visa Assistance Required?'] }}",
+            "Special Requests": "={{ $json['Special Requests'] }}",
+            "submittedAt": "={{ $json.submittedAt }}",
+            "formMode": "={{ $json.formMode }}",
+            "Lead Status": "={{ $json['Lead Status'] }}",
+            "Estimated Return Date": "={{ $json['Estimated Return Date'] }}",
+            "Processed At": "={{ $json['Processed At'] }}"
+          },
+          "matchingColumns": [
+            "Inquiry ID"
+          ],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Destination",
+              "displayName": "Destination",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Departure City",
+              "displayName": "Departure City",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Travel Start Date",
+              "displayName": "Travel Start Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Trip Duration",
+              "displayName": "Trip Duration",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Number of Travelers",
+              "displayName": "Number of Travelers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Trip Type",
+              "displayName": "Trip Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Hotel Preference",
+              "displayName": "Hotel Preference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget Range",
+              "displayName": "Budget Range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Flight Booking Required?",
+              "displayName": "Flight Booking Required?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Visa Assistance Required?",
+              "displayName": "Visa Assistance Required?",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Special Requests",
+              "displayName": "Special Requests",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "submittedAt",
+              "displayName": "submittedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formMode",
+              "displayName": "formMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Inquiry ID",
+              "displayName": "Inquiry ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estimated Return Date",
+              "displayName": "Estimated Return Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Processed At",
+              "displayName": "Processed At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "1ea536e6-3f5f-461e-8a14-5a31254fdd1a",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Mic9N4vUpKb5ffBS",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=✈️ Travel Inquiry Confirmation | {{ $json[\"Inquiry ID\"] }}",
+        "message": "=<!DOCTYPE html>  <html> <head> <meta charset=\"UTF-8\"> </head> <body style=\"margin:0;padding:0;background-color:#f4f7fc;font-family:Arial,sans-serif;\">  <div style=\"max-width:700px;margin:30px auto;background:#ffffff;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.1);\">  ``` <!-- Header --> <div style=\"background:linear-gradient(135deg,#2563eb,#1e40af);padding:30px;text-align:center;color:white;\">     <h1 style=\"margin:0;\">✈️ Travel Inquiry Received</h1>     <p style=\"margin-top:10px;\">Thank you for choosing us for your next adventure!</p> </div>  <!-- Content --> <div style=\"padding:30px;\">      <p>Dear <strong>{{ $json[\"Full Name\"] }}</strong>,</p>      <p>         Thank you for submitting your travel inquiry. We have successfully received your request and our travel consultant will review your requirements shortly.     </p>      <div style=\"background:#eff6ff;border-left:5px solid #2563eb;padding:15px;border-radius:8px;margin:20px 0;\">         <strong>Inquiry ID:</strong> {{ $json[\"Inquiry ID\"] }}     </div>      <h2 style=\"color:#2563eb;\">📋 Your Travel Details</h2>      <table style=\"width:100%;border-collapse:collapse;\">         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Destination</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Destination\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Departure City</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Departure City\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Travel Start Date</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Travel Start Date\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Estimated Return Date</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Estimated Return Date\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Trip Duration</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Trip Duration\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Travelers</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Number of Travelers\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Trip Type</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Trip Type\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Hotel Preference</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Hotel Preference\"] }}</td>         </tr>         <tr>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\"><strong>Budget Range</strong></td>             <td style=\"padding:10px;border-bottom:1px solid #e5e7eb;\">{{ $json[\"Budget Range\"] }}</td>         </tr>     </table>      <!-- Next Steps -->     <div style=\"margin-top:25px;background:#f0fdf4;border-left:5px solid #22c55e;padding:20px;border-radius:8px;\">         <h3 style=\"margin-top:0;color:#15803d;\">🚀 What Happens Next?</h3>         <ul style=\"padding-left:20px;\">             <li>Our travel consultant will review your inquiry.</li>             <li>You will receive personalized travel recommendations.</li>             <li>We will contact you within 24 hours.</li>             <li>Please check your inbox and spam folder regularly.</li>         </ul>     </div>      <!-- Contact -->     <div style=\"margin-top:25px;text-align:center;\">         <p>             Thank you for trusting us with your travel plans. We look forward to helping you create unforgettable memories! 🌍         </p>     </div>  </div>  <!-- Footer --> <div style=\"background:#1f2937;color:#d1d5db;text-align:center;padding:20px;font-size:12px;\">     <p style=\"margin:0;\">         This is an automated confirmation email containing a copy of your submitted travel inquiry.     </p>     <p style=\"margin-top:8px;\">         © 2026 Travel Agency. All Rights Reserved.     </p> </div> ```  </div>  </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "d03812b7-ffda-4d91-bcf5-6204c0cf6593",
+      "name": "Send a message",
+      "webhookId": "f98d6167-1b16-4b8b-a4a0-b543e3c1ee73",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WVdhSA172t7Tk1XZ",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4be4470f-5f7b-4e29-ba0a-0c9411af6f25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "560a5cee4f50057b77e8f32c6f027966581f9beba8a2c2ec83c54bfc9af8b936"
+  },
+  "nodeGroups": [],
+  "id": "tUWraCihn3aBHbi9",
+  "tags": []
+}
