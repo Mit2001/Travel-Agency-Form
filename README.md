@@ -1,0 +1,2 @@
+# Travel Agency Form
+A workflow automation project built using n8n that streamlines travel inquiry management. Users submit their travel details through an online form, where the data is validated using JavaScript before being processed. Valid submissions are automatically stored in Google Sheets, and a personalized confirmation email containing the submitted details is sent to the customer. This project showcases practical use of workflow automation, JavaScript validation, Google Sheets integration, and email automation.
